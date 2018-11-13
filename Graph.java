@@ -5,7 +5,6 @@ import java.util.Stack;
 
 public class Graph {	
 	Vertex[][] graph;
-	//Vertex currentVert;
 	Vertex[] vertexList;
 	int dimension;
 	int total_Verts;
@@ -26,36 +25,18 @@ public class Graph {
 				Vertex v=new Vertex(value);
 				vertexList[value-1]=v;
 				graph[i][j]=v;
-				if(value==total_Verts) {
-					graph[i][j].BOTTOM=false;
-				}
 				value++;
 			}
 		}
+		graph[0][0].TOP=false;
+		graph[dimension-1][dimension-1].BOTTOM=false;
+		
+		//graph[0][dimension-1].TOP=false;
 	}
 	
 	/**
 	 * Sets the adjacency list for each vertex
 	 */
-	/*public void setNeighbors() {
-		for(int i=0;i<dimension;i++) {
-			for(int j=0;j<dimension;j++) {
-				//add top neighbor if not in first row
-				if(j!=0)
-					graph[i][j].adjList.add(graph[i][j-1]);
-				//add bottom neighbor if not on last row
-				if(j!=(dimension-1))
-					graph[i][j].adjList.add(graph[i][j+1]);
-				//add left neighbor if not in first column of graph
-				if(i!=0)
-					graph[i][j].adjList.add(graph[i-1][j]);
-				//add right neighbor if not in last column
-				if(i!=dimension-1)
-					graph[i][j].adjList.add(graph[i+1][j]);
-			}
-		}
-	}*/
-	
 	public void setNeighbors() {
 		for(int i=0;i<dimension;i++) {
 			for(int j=0;j<dimension;j++) {
@@ -75,19 +56,36 @@ public class Graph {
 		}
 	}
 	
+	public String getAdjList() {
+		String list="";	
+		for(int i=0;i<dimension;i++) {
+			for(int j=0;j<dimension;j++) {
+				Vertex v=graph[i][j];
+				for(int k=0;k<v.adjList.size();k++)
+					list+=v.adjList.get(k).label+" ";
+				list+="\n";
+			}
+		}
+		return list;
+	}
+	
 	public void breakWall(Vertex current, Vertex neighbor) {
+		//break right neighbors wall
 		if(current.label+1==neighbor.label) {
 			current.RIGHT=false;
 			neighbor.LEFT=false;
 		}
+		//break left neighbors wall
 		else if(current.label-1==neighbor.label) {
 			current.LEFT=false;
 			neighbor.RIGHT=false;
 		}
+		//break bottom neighbors wall
 		else if(current.label+dimension==neighbor.label) {
 			current.BOTTOM=false;
 			neighbor.TOP=false;
 		}
+		//break top neighbors wall
 		else {
 			current.TOP=false;
 			neighbor.BOTTOM=false;
@@ -95,21 +93,23 @@ public class Graph {
 	}
 	
 	public void createMaze() {
-		Stack<Vertex> stack=new Stack<Vertex>();
+		Stack<Vertex> stack=new Stack<>();
 		int visited=1;	//Number of vertexes visited
 		Vertex current=graph[0][0];
 		
 		while(visited<total_Verts) {
-			if(!current.adjList.isEmpty()) {	//if vertex has neighbors
-				Vertex neighbor=current.getNeighbor(current);
+			if(!current.adjList.isEmpty()&&current.whiteNeighbors()) {	//if vertex has neighbors
+				System.out.print("a");
+				Vertex neighbor=current.getNeighbor();
 				breakWall(current, neighbor);
 				stack.push(current);	//visit other neighbors if any
 				current=neighbor;	//Go to next node
 				visited++;
 			}
 			else {
+				System.out.print("b");
 				current=stack.pop();
-			}		
+			}	
 		}
 	}
 	
@@ -127,7 +127,7 @@ public class Graph {
 	}
 	
 	public void solveDFS() {
-		Vertex current=vertexList[0];	//starting point
+		Vertex current=graph[0][0];	//starting point
 		Stack<Vertex> stack=new Stack<>();
 		stack.push(current);
 		int step=0;	//The number of steps taken to get to vertex
@@ -149,32 +149,37 @@ public class Graph {
 	
 	public String printMaze() {
         String maze = "";
-        int vertex=0;
-		for(int row=1;row<(dimension*2)+2;row++) {
-			for(int col=0;col<=dimension;col++) {
-				if(row%2==0) {	//if "|" must be printed
-					if(vertexList[vertex].LEFT)
-						maze+="| ";
+        int r=0;
+		for(int row=0;row<(dimension*2)+1;row++) {
+			for(int col=0;col<dimension;col++) {
+				if(row%2!=0) {	//if "|" must be printed
+					if(graph[r][col].LEFT)
+						maze+="|"+graph[r][col].label;
 					else
-						maze+=" ";
-					if(col==dimension&&vertexList[vertex].RIGHT)
+						maze+=" "+graph[r][col].label;
+					if(col==dimension-1/*&&graph[r][col].RIGHT*/) {
 						maze+="|";
+						r++;
+					}
 				}
-				else if(row==dimension*2+1) {
-					if(vertexList[vertex].BOTTOM)
+				else if(row==dimension*2||r==dimension) {
+					r=dimension-1;
+					if(graph[r][col].BOTTOM)
 						maze+="+-";
 					else
 						maze+="+ ";
 				}
 				else {	//if + and - must be printed
-					if(vertexList[vertex].TOP)
+					if(graph[r][col].TOP)
 						maze+="+-";
 					else
 						maze+="+ ";
 				}
 			}
-			vertex++;
-			if(row%2!=0)
+			/*r++;
+			if(r==dimension)
+				r=0;*/
+			if(row%2==0)
 				maze+="+";
 			maze+="\n";
 		}
@@ -193,24 +198,35 @@ public class Graph {
 		boolean LEFT=true;
 		
 		public Vertex(int label) {
-			adjList = new LinkedList<Vertex>();
+			this.adjList = new LinkedList<Vertex>();
 			this.label=label;
 			color=0;
 		}
 		
-		public Vertex getNeighbor(Vertex v) {
+		public boolean whiteNeighbors() {
+			for(int i=0;i<this.adjList.size();i++) {
+				if(adjList.get(i).color==0)
+					return true;
+			}
+			return false;
+		}
+		
+		public Vertex getNeighbor() {
 			Vertex[] white=new Vertex[4];	//create array list for white neighbors
 			int index=0;
-			for(int i=0;i<v.adjList.size();i++) {
-				if(v.adjList.get(i).color==0) {
-					white[index]=v.adjList.get(i);
+			for(int i=0;i<this.adjList.size();i++) {
+				if(!this.adjList.isEmpty()&&this.adjList.get(i).color==0) {
+					white[index]=this.adjList.get(i);
 					index++;
 				}
 			}
 			
 			Random random=new Random();
-			Vertex neighbor=white[random.nextInt(adjList.size())];	//select random neighbor
-			adjList.remove(neighbor);	//remove from adjacency list
+			Vertex neighbor=white[random.nextInt(index)];	//select random white neighbor
+			//Update adjacency list and color of both vertices
+			neighbor.color=1;
+			this.color=1;
+			
 			return neighbor;
 		}
 	}
@@ -218,13 +234,11 @@ public class Graph {
 	public static void main(String[] args) {
 		Graph g = new Graph(3);
 		g.setNeighbors();
-		g.createMaze();
-		System.out.print(g.printMaze());
-		/*for(int i=0;i<g.dimension;i++) {
-			for(int j=0;j<g.dimension;j++)
-				System.out.println(g.graph[i][j].label);
-			System.out.println();
-		}*/
+		System.out.print(g.getAdjList());
+		System.out.println(g.printMaze());
 		
+		g.createMaze();
+		System.out.print(g.getAdjList());
+		System.out.print(g.printMaze());
 	}
 }

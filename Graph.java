@@ -111,7 +111,7 @@ public class Graph {
 		
 		while(visited<total_Verts) {
 			if(!current.adjList.isEmpty()&&current.whiteNeighbors()) {	//if vertex has neighbors
-				System.out.print("a");
+				//System.out.print("a");
 				Vertex neighbor=current.getNeighbor();
 				breakWall(current, neighbor);
 				stack.push(current);	//visit other neighbors if any
@@ -150,7 +150,7 @@ public class Graph {
 			current.setStep(step);	//set step for this vertex
 			step+=1;	//increment step
 			
-			for(int i=0;i<current.adjList2.size()-1;i++) {	//Look at each neighbor
+			for(int i=0;i<current.adjList2.size();i++) {	//Look at each neighbor
 				Vertex next=getVertex(current.adjList2.get(i).label);
 				if(next.color2==0) {	//If neighbor is white add it to stack
 					stack.push(next);
@@ -212,7 +212,7 @@ public class Graph {
 			this.adjList = new LinkedList<Vertex>();
 			this.adjList2 = new LinkedList<Vertex>();
 			this.label=label;
-			step="1";
+			step=" ";
 			color=0;
 			color2=0;
 		}
@@ -258,11 +258,9 @@ public class Graph {
 	public static void main(String[] args) {
 		Graph g = new Graph(3);
 		System.out.println(g.getVertex(1).step);
-		g.getVertex(1).setStep(3);
-		System.out.println(g.getVertex(1).step);
 		g.setNeighbors();
-		System.out.print(g.getAdjList());
-		System.out.println(g.printMaze());
+		/*System.out.print(g.getAdjList());
+		System.out.println(g.printMaze());*/
 		
 		g.createMaze();
 		g.solveDFS();

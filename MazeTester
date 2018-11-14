@@ -1,0 +1,27 @@
+public class MazeTester {
+	public static void main(String[] args) {
+		Graph g = new Graph(4);
+		Graph g2 = new Graph(4);
+		Graph g3 = new Graph(4);
+		
+		//Create walls
+		g.setNeighbors();
+		g2.setNeighbors();
+		g3.setNeighbors();
+		
+		//Create Maze
+		g.createMaze();
+		g2.createMaze();
+		g3.createMaze();
+		
+		//Find path to end of maze
+		g.solveDFS();
+		g2.solveBFS();
+		//g3.printHash();
+		
+		System.out.print(g.getAdjList());
+		System.out.print("DFS: \n"  + g.printMaze());
+		System.out.print("BFS: \n"  + g2.printMaze());
+		System.out.print("#: \n"  + g3.printMaze());
+	}
+}

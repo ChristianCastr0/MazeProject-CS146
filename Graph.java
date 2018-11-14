@@ -126,7 +126,6 @@ public class Graph {
 		
 		while(visited<total_Verts) {
 			if(!current.wallList.isEmpty()&&current.whiteNeighbors()) {	//if vertex has neighbors
-				//System.out.print("a");
 				Vertex neighbor=current.getNeighbor();
 				breakWall(current, neighbor);
 				stack.push(current);	//visit other neighbors if any
@@ -134,7 +133,6 @@ public class Graph {
 				visited++;
 			}
 			else {
-				System.out.print("b");
 				current=stack.pop();
 			}	
 		}
@@ -302,31 +300,5 @@ public class Graph {
 			
 			return neighbor;
 		}
-	}
-	
-	public static void main(String[] args) {
-		Graph g = new Graph(4);
-		Graph g2 = new Graph(4);
-		Graph g3 = new Graph(4);
-		System.out.println(g.getVertex(1).step);
-		g.setNeighbors();
-		System.out.println(g2.getVertex(1).step);
-		g2.setNeighbors();
-		System.out.println(g3.getVertex(1).step);
-		g3.setNeighbors();
-		/*System.out.print(g.getAdjList());
-		System.out.println(g.printMaze());*/
-		
-		g.createMaze();
-		g2.createMaze();
-		g3.createMaze();
-		g.solveDFS();
-		g2.solveBFS();
-		//g3.printHash();
-		System.out.print(g.getAdjList());
-		System.out.print("DFS: \n"  + g.printMaze());
-		System.out.print("BFS: \n"  + g2.printMaze());
-		System.out.print("#: \n"  + g3.printMaze());
-		
 	}
 }

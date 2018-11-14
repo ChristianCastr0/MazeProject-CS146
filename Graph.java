@@ -125,17 +125,25 @@ public class Graph {
 		}
 	}
 	
-	//not done
 	public void solveBFS(){
-		Queue<Vertex> q=new LinkedList<>();
-		q.add(vertexList[0]);
-		while(!q.isEmpty()) {
-			Vertex next=q.remove();
+		Vertex currentV = graph[0][0];  // first position
+		Queue<Vertex> q = new LinkedList<>();  
+		q.add(currentV); // add to queue
+		int step = 0;
+		
+		while (!q.isEmpty() && currentV.label!=total_Verts) {
+			currentV = q.remove();  //remove then change color to black
+			currentV.color2 = 2;     //fully explored
+			currentV.setStep(step);
+			step += 1;     
 			
-			for(int i=0;i<next.adjList.size()-1;i++) {
-				Vertex neighbor=next.adjList.get(i);
-			}
-		}
+			for(int i=0;i<currentV.adjList2.size();i++) {	//check each neighbor
+				Vertex next=getVertex(currentV.adjList2.get(i).label);
+				if(next.color2==0) {	//if neighbor is white add it to queue
+					q.add(next);
+				}	
+			}	
+		}	
 	}
 	
 	public void solveDFS() {
@@ -257,14 +265,27 @@ public class Graph {
 	
 	public static void main(String[] args) {
 		Graph g = new Graph(3);
+		Graph g2 = new Graph(3);
+		Graph g3 = new Graph(3);
 		System.out.println(g.getVertex(1).step);
 		g.setNeighbors();
+		System.out.println(g2.getVertex(1).step);
+		g2.setNeighbors();
+		System.out.println(g3.getVertex(1).step);
+		g3.setNeighbors();
 		/*System.out.print(g.getAdjList());
 		System.out.println(g.printMaze());*/
 		
 		g.createMaze();
+		g2.createMaze();
+		g3.createMaze();
 		g.solveDFS();
+		g2.solveBFS();
+		g3.printHash();
 		System.out.print(g.getAdjList());
-		System.out.print(g.printMaze());
+		System.out.print("DFS: \n"  + g.printMaze());
+		System.out.print("BFS: \n"  + g2.printMaze());
+		System.out.print("#: \n"  + g3.printMaze());
+		
 	}
 }
